@@ -17,6 +17,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 void main() async {
   //HALAMAN WELCOME
@@ -220,45 +221,51 @@ class _HomePageState extends State<HomePage> {
       drawer: SideBar(),
       //SIDEBAR
       body: _pages[_currentIndex],
-      bottomNavigationBar: ClipRRect(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.red,
-          unselectedItemColor: Warna.TextBold,
-          selectedItemColor: Warna.Primary,
-          currentIndex: _currentIndex,
+      bottomNavigationBar: CurvedNavigationBar(
+          height: 60,
+          backgroundColor: Warna.BG,
           onTap: (index) {
             setState(() {
               _currentIndex = index;
             });
           },
+          animationDuration: Duration(milliseconds: 300),
           items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.event_note),
-              label: 'Daftar Acara',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.qr_code_scanner),
-              label: 'Absen',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.assignment_ind),
-              label: 'Pengurus',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
-            ),
-          ],
-        ),
-      ),
+            /*  Icon(Icons.home_outlined),
+            Icon(Icons.event_note),
+            Icon(Icons.qr_code_scanner),
+            Icon(Icons.assignment_ind),
+            Icon(Icons.person_outline), */
+            _buildNavItem(Icons.home_outlined, 'Home'),
+            _buildNavItem(Icons.event_note, 'Acara'),
+            _buildNavItem(Icons.qr_code_scanner, 'Absen'),
+            _buildNavItem(Icons.assignment_ind, 'Pengurus'),
+            _buildNavItem(Icons.person_outline, 'Profile'),
+          ]),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // Hitung ukuran font berdasarkan lebar parent
+        double fontSize = constraints.maxWidth *
+            0.15; // Sesuaikan faktor ini sesuai kebutuhan
+
+        return Container(
+          margin: EdgeInsets.all(5),
+          child: Column(
+            children: <Widget>[
+              Icon(icon, size: 27),
+              SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(fontSize: fontSize),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -601,7 +608,7 @@ class HalamanUtama extends StatelessWidget {
               ),
             ),
 
-            //RIWAYAT TRANSAKSI
+            //DAFTAR ACARA ANDA
             Container(
               margin: EdgeInsets.only(top: 10, left: 24, right: 24),
               child: Row(
@@ -749,16 +756,15 @@ class HalamanUtama extends StatelessWidget {
               ),
             ),
             //ITEM ACARA
-
-            //RIWAYAT TRANSAKSI
-
-            //DISINI
+            //DAFTAR ACARA ANDA
 
             //DISINI
 
             //DISINI
 
-            //DISINI
+            SizedBox(
+              height: 30,
+            ),
           ],
         ),
       ),
@@ -896,16 +902,30 @@ class _DaftarAcaraState extends State<DaftarAcara> {
                         MenuItemCard(menuItem: snapshot.data![index]),
                         ElevatedButton(
                           style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStatePropertyAll(Warna.Primary)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    20.0), // Sesuaikan radius sesuai kebutuhan
+                                side: BorderSide(
+                                    color: Warna.Primary), // Warna garis tepi
+                              ),
+                            ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.white), // Warna latar belakang putih
+                          ),
                           onPressed: () {
                             setState(() {
                               displayedItemsCount +=
-                                  7; // Increase displayed count
+                                  7; // Tambahkan jumlah item yang ditampilkan
                             });
                           },
-                          child: Text('Muat lebih banyak'),
+                          child: Text('Muat lebih banyak',
+                              style: TextStyle(color: Warna.Primary)),
                         ),
+                        SizedBox(
+                          height: 20,
+                        )
                       ],
                     );
                   } else {
@@ -914,7 +934,7 @@ class _DaftarAcaraState extends State<DaftarAcara> {
                 },
               );
             } else {
-              return Text('Tidak ada data tersedia.');
+              return Text('Belum ada acara apapun.');
             }
           },
         ),
@@ -977,20 +997,25 @@ class MenuItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: TextButton(
-        onPressed: () {
-          print(menuItem.id);
-        },
-        child: ListTile(
-          leading: Image.network(menuItem.gambar),
-          title: Text(
-            menuItem.title,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            menuItem.status,
-            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+    return Container(
+      margin: EdgeInsets.only(left: 5, right: 5),
+      child: Card(
+        elevation: 0,
+        child: TextButton(
+          onPressed: () {
+            print(menuItem.id);
+          },
+          child: ListTile(
+            leading: Image.network(menuItem.gambar),
+            title: Text(
+              menuItem.title,
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              menuItem.status,
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ),
